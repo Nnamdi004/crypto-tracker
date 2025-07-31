@@ -23,39 +23,39 @@ function renderTable(data) {
 }
 
 async function fetchData() {
-  tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><div class="spinner"></div></td></tr>`;
+  tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Loading data...</td></tr>`;
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
     cryptoData = data;
     renderTable(cryptoData);
-  } catch (err) {
-    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Failed to load data. Please try again.</td></tr>`;
+  } catch (error) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Failed to load data.</td></tr>`;
   }
 }
 
 searchInput.addEventListener("input", () => {
-  const term = searchInput.value.toLowerCase();
-  const filtered = cryptoData.filter(coin =>
-    coin.name.toLowerCase().includes(term) || coin.symbol.toLowerCase().includes(term)
+  const query = searchInput.value.toLowerCase();
+  const filtered = cryptoData.filter(c =>
+    c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
   );
   renderTable(filtered);
 });
 
-refreshBtn.addEventListener("click", fetchData);
-
 document.querySelectorAll("th[data-sort]").forEach(th => {
   th.addEventListener("click", () => {
     const key = th.dataset.sort;
-    cryptoData.sort((a, b) => {
-      if (typeof a[key] === "string") {
-        return a[key].localeCompare(b[key]);
-      }
-      return b[key] - a[key];
-    });
-    renderTable(cryptoData);
+    const sorted = [...cryptoData].sort((a, b) =>
+      typeof a[key] === "string"
+        ? a[key].localeCompare(b[key])
+        : b[key] - a[key]
+    );
+    renderTable(sorted);
   });
 });
 
-fetchData();
+refreshBtn.addEventListener("click", fetchData);
+
+window.addEventListener("DOMContentLoaded", fetchData);
+
 
