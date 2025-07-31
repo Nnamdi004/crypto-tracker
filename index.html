@@ -2,40 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crypto Tracker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>Crypto Market Tracker</h1>
+    <h1>Crypto Price Tracker</h1>
     <input type="text" id="searchInput" placeholder="Search cryptocurrency..." />
-    <button id="refreshBtn">Refresh</button>
   </header>
 
+  <section class="table-controls">
+    <button onclick="sortTable('price')">Sort by Price</button>
+    <button onclick="sortTable('marketCap')">Sort by Market Cap</button>
+    <button onclick="toggleTheme()">Toggle Theme</button>
+  </section>
+
   <main class="crypto-table">
-    <table>
+    <div id="loading">Loading data...</div>
+    <table id="cryptoTable" style="display: none;">
       <thead>
         <tr>
-          <th data-sort="name">Name</th>
-          <th data-sort="symbol">Symbol</th>
-          <th data-sort="price">Price</th>
-          <th data-sort="market_cap">Market Cap</th>
-          <th>24h Change</th>
+          <th>Name</th>
+          <th>Symbol</th>
+          <th>Price (USD)</th>
+          <th>Market Cap</th>
         </tr>
       </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="5" style="text-align: center;">Loading data...</td></tr>
-      </tbody>
+      <tbody></tbody>
     </table>
   </main>
 
+  <section class="converter">
+    <h2>Currency Converter</h2>
+    <input type="number" id="amount" placeholder="Amount" />
+    <select id="fromCurrency"></select>
+    <select id="toCurrency"></select>
+    <button onclick="convertCurrency()">Convert</button>
+    <div id="conversionResult"></div>
+  </section>
+
   <footer>
-    <p>&copy; 2025 Crypto Tracker | Data from CoinGecko</p>
+    Built with ❤️ using CoinGecko API. Live updates every 30 seconds.
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
-
-
