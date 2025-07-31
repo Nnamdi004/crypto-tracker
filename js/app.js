@@ -72,3 +72,4 @@ function sortTable(key) {
   });
   renderTable(sorted);
 }
+
