@@ -1,75 +1,65 @@
-const API_URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd";
+const tableBody = document.getElementById("tableBody");
+const table = document.getElementById("cryptoTable");
+const spinner = document.getElementById("spinner");
+const searchInput = document.getElementById("searchInput");
 
 let cryptoData = [];
 
-window.onload = () => {
-  fetchData();
-
-  document.getElementById("searchInput").addEventListener("input", () => {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const filtered = cryptoData.filter(coin =>
-      coin.name.toLowerCase().includes(query)
-    );
-    renderTable(filtered);
-  });
-};
-
-function fetchData() {
-  fetch(API_URL)
-    .then((res) => res.json())
-    .then((data) => {
-      cryptoData = data;
-      renderTable(data);
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      document.getElementById("cryptoTable").innerHTML =
-        "<p>⚠️ Failed to load data. Please try again later.</p>";
-    });
-}
-
-function renderTable(data) {
-  if (data.length === 0) {
-    document.getElementById("cryptoTable").innerHTML = "<p>No results found.</p>";
-    return;
+async function fetchData() {
+  spinner.style.display = "block";
+  table.style.display = "none";
+  try {
+    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1");
+    const data = await response.json();
+    cryptoData = data;
+    displayData(data);
+  } catch (error) {
+    alert("Failed to fetch data.");
+    console.error(error);
+  } finally {
+    spinner.style.display = "none";
+    table.style.display = "table";
   }
+}
 
-  let tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Price (USD)</th>
-          <th>Market Cap</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  data.forEach((coin) => {
-    tableHTML += `
-      <tr>
-        <td>${coin.name} (${coin.symbol.toUpperCase()})</td>
-        <td>$${coin.current_price.toLocaleString()}</td>
-        <td>$${coin.market_cap.toLocaleString()}</td>
-      </tr>
+function displayData(data) {
+  tableBody.innerHTML = "";
+  data.forEach((coin, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${coin.market_cap_rank}</td>
+      <td>${coin.name}</td>
+      <td>${coin.symbol.toUpperCase()}</td>
+      <td>$${coin.current_price.toLocaleString()}</td>
+      <td>$${coin.market_cap.toLocaleString()}</td>
     `;
+    tableBody.appendChild(row);
   });
-
-  tableHTML += `</tbody></table>`;
-  document.getElementById("cryptoTable").innerHTML = tableHTML;
 }
 
-function sortTable(key) {
-  const sorted = [...cryptoData].sort((a, b) => {
-    if (key === "name") {
-      return a.name.localeCompare(b.name);
-    } else if (key === "price") {
-      return b.current_price - a.current_price;
-    } else if (key === "market_cap") {
-      return b.market_cap - a.market_cap;
-    }
-  });
-  renderTable(sorted);
+function sortByPrice() {
+  const sorted = [...cryptoData].sort((a, b) => b.current_price - a.current_price);
+  displayData(sorted);
 }
+
+function sortByMarketCap() {
+  const sorted = [...cryptoData].sort((a, b) => b.market_cap - a.market_cap);
+  displayData(sorted);
+}
+
+function refreshData() {
+  fetchData();
+}
+
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.toLowerCase();
+  const filtered = cryptoData.filter(coin => 
+    coin.name.toLowerCase().includes(query) || 
+    coin.symbol.toLowerCase().includes(query)
+  );
+  displayData(filtered);
+});
+
+// Initial load
+fetchData();
 

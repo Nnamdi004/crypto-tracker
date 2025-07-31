@@ -2,34 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crypto Tracker</title>
-  <link rel="stylesheet" href="./css/styles.css" />
-  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="logo.png" type="image/png" />
 </head>
 <body>
   <header>
-    <img src="./assets/logo.png" alt="Crypto Tracker Logo" class="logo" />
-    <h1>💰 Crypto Tracker</h1>
-    <input type="text" id="searchInput" placeholder="Search cryptocurrency..." />
+    <img src="logo.png" alt="Crypto Logo" class="logo" />
+    <h1>Crypto Dashboard</h1>
+    <input type="text" id="searchInput" placeholder="Search for a coin..." />
   </header>
 
-  <main>
-    <div class="table-controls">
-      <button onclick="sortTable('name')">Sort by Name</button>
-      <button onclick="sortTable('price')">Sort by Price</button>
-      <button onclick="sortTable('market_cap')">Sort by Market Cap</button>
-    </div>
+  <div class="table-controls">
+    <button onclick="sortByPrice()">Sort by Price</button>
+    <button onclick="sortByMarketCap()">Sort by Market Cap</button>
+    <button onclick="refreshData()">Refresh</button>
+  </div>
 
-    <section id="cryptoTable" class="crypto-table">
-      <p>Loading data...</p>
-    </section>
-  </main>
+  <section class="crypto-table">
+    <div id="spinner" class="spinner"></div>
+    <table id="cryptoTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Symbol</th>
+          <th>Price (USD)</th>
+          <th>Market Cap</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data will be populated here -->
+      </tbody>
+    </table>
+  </section>
 
   <footer>
-    <p>Powered by <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a></p>
+    Powered by <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
   </footer>
 
-  <script src="./js/app.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
