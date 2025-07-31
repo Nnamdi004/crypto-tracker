@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crypto Tracker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <h1>Crypto Market Tracker</h1>
-    <input type="text" id="searchInput" placeholder="Search for a cryptocurrency..." />
-    <button id="refreshBtn">Refresh Data</button>
+    <input type="text" id="searchInput" placeholder="Search cryptocurrency..." />
+    <button id="refreshBtn">Refresh</button>
   </header>
 
   <main class="crypto-table">
     <table>
       <thead>
         <tr>
-          <th data-sort="name">Name 🔽</th>
+          <th data-sort="name">Name</th>
           <th data-sort="symbol">Symbol</th>
           <th data-sort="price">Price</th>
           <th data-sort="market_cap">Market Cap</th>
@@ -25,16 +25,17 @@
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="5" style="text-align:center;"><div class="spinner"></div></td></tr>
+        <tr><td colspan="5" style="text-align: center;">Loading data...</td></tr>
       </tbody>
     </table>
   </main>
 
   <footer>
-    <p>&copy; 2025 Crypto Tracker | Data from <a href="https://www.coingecko.com/api/documentations/v3" target="_blank">CoinGecko API</a></p>
+    <p>&copy; 2025 Crypto Tracker | Data from CoinGecko</p>
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
+
 
