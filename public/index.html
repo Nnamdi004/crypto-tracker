@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crypto Tracker</title>
+  <link rel="stylesheet" href="../src/css/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>💰 Crypto Tracker</h1>
+    <input type="text" id="searchInput" placeholder="Search cryptocurrency..." />
+  </header>
+
+  <main>
+    <div class="table-controls">
+      <button onclick="sortTable('name')">Sort by Name</button>
+      <button onclick="sortTable('price')">Sort by Price</button>
+      <button onclick="sortTable('market_cap')">Sort by Market Cap</button>
+    </div>
+
+    <section id="cryptoTable" class="crypto-table">
+      <p>Loading data...</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Powered by <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a></p>
+  </footer>
+
+  <script src="../src/js/app.js"></script>
+</body>
+</html>

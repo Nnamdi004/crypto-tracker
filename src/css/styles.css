@@ -1,0 +1,73 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #0f1116;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  background-color: #1e222d;
+}
+
+header h1 {
+  margin-bottom: 10px;
+  color: #00ffff;
+}
+
+input[type="text"] {
+  width: 80%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+main {
+  padding: 20px;
+}
+
+.table-controls {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.table-controls button {
+  margin: 0 5px;
+  padding: 8px 12px;
+  background-color: #282c36;
+  color: #00ffff;
+  border: 1px solid #00ffff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.crypto-table {
+  max-width: 900px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+th {
+  color: #00ffff;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #1e222d;
+  color: #aaa;
+}
