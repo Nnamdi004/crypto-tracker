@@ -1,61 +1,88 @@
-const API_URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd";
-
-const tableBody = document.getElementById("tableBody");
-const searchInput = document.getElementById("searchInput");
-const refreshBtn = document.getElementById("refreshBtn");
+const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd';
 let cryptoData = [];
+let ascending = true;
+let currentSort = null;
+
+async function fetchData() {
+  try {
+    document.getElementById("loading").style.display = "block";
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    cryptoData = data;
+    renderTable(data);
+    populateCurrencyOptions(data);
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    document.getElementById("loading").innerText = "Failed to load data.";
+  }
+}
 
 function renderTable(data) {
-  tableBody.innerHTML = "";
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = "";
   data.forEach(coin => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
+    const row = `<tr>
       <td>${coin.name}</td>
       <td>${coin.symbol.toUpperCase()}</td>
       <td>$${coin.current_price.toLocaleString()}</td>
       <td>$${coin.market_cap.toLocaleString()}</td>
-      <td style="color:${coin.price_change_percentage_24h >= 0 ? 'lime' : 'red'};">
-        ${coin.price_change_percentage_24h.toFixed(2)}%
-      </td>
-    `;
-    tableBody.appendChild(row);
+    </tr>`;
+    tbody.innerHTML += row;
   });
+  document.getElementById("cryptoTable").style.display = "table";
+  document.getElementById("loading").style.display = "none";
 }
 
-async function fetchData() {
-  tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Loading data...</td></tr>`;
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    cryptoData = data;
-    renderTable(cryptoData);
-  } catch (error) {
-    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Failed to load data.</td></tr>`;
+function sortTable(by) {
+  if (currentSort === by) ascending = !ascending;
+  else {
+    currentSort = by;
+    ascending = true;
   }
+
+  const sorted = [...cryptoData].sort((a, b) => {
+    let valA = by === 'price' ? a.current_price : a.market_cap;
+    let valB = by === 'price' ? b.current_price : b.market_cap;
+    return ascending ? valA - valB : valB - valA;
+  });
+  renderTable(sorted);
 }
 
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
-  const filtered = cryptoData.filter(c =>
-    c.name.toLowerCase().includes(query) || c.symbol.toLowerCase().includes(query)
+document.getElementById("searchInput").addEventListener("input", e => {
+  const searchTerm = e.target.value.toLowerCase();
+  const filtered = cryptoData.filter(coin =>
+    coin.name.toLowerCase().includes(searchTerm) ||
+    coin.symbol.toLowerCase().includes(searchTerm)
   );
   renderTable(filtered);
 });
 
-document.querySelectorAll("th[data-sort]").forEach(th => {
-  th.addEventListener("click", () => {
-    const key = th.dataset.sort;
-    const sorted = [...cryptoData].sort((a, b) =>
-      typeof a[key] === "string"
-        ? a[key].localeCompare(b[key])
-        : b[key] - a[key]
-    );
-    renderTable(sorted);
+function populateCurrencyOptions(data) {
+  const from = document.getElementById("fromCurrency");
+  const to = document.getElementById("toCurrency");
+  data.forEach(coin => {
+    const option1 = new Option(coin.name, coin.current_price);
+    const option2 = new Option(coin.name, coin.current_price);
+    from.appendChild(option1);
+    to.appendChild(option2);
   });
-});
+}
 
-refreshBtn.addEventListener("click", fetchData);
+function convertCurrency() {
+  const amount = parseFloat(document.getElementById("amount").value);
+  const fromVal = parseFloat(document.getElementById("fromCurrency").value);
+  const toVal = parseFloat(document.getElementById("toCurrency").value);
+  if (!amount || isNaN(fromVal) || isNaN(toVal)) return;
 
-window.addEventListener("DOMContentLoaded", fetchData);
+  const converted = (amount * fromVal) / toVal;
+  document.getElementById("conversionResult").innerText =
+    `Converted: ${converted.toFixed(6)}`;
+}
 
+function toggleTheme() {
+  document.body.classList.toggle("light-theme");
+}
 
+// Fetch data initially and every 30 seconds
+fetchData();
+setInterval(fetchData, 30000);
