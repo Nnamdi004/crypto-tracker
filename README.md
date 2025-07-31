@@ -120,15 +120,15 @@ crypto-tracker/
 
 📈 Challenges and Solutions
 
-Challenge	Solution
+Challenge	                 Solution
 
-API rate limits	Cached on load, minimal refresh
+API rate limits:	Cached on load, minimal refresh
 
-Cross-browser rendering	Used standard HTML/CSS with no frameworks
+Cross-browser rendering:	Used standard HTML/CSS with no frameworks
 
-Data rendering	Dynamically generated table via JS DOM manipulation
+Data rendering:	Dynamically generated table via JS DOM manipulation
 
-Responsiveness	Flex-based layout and media queries
+Responsiveness:	Flex-based layout and media queries
 
 
 🙏 Acknowledgements
