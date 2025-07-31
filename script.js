@@ -1,65 +1,61 @@
-const tableBody = document.getElementById("tableBody");
-const table = document.getElementById("cryptoTable");
-const spinner = document.getElementById("spinner");
-const searchInput = document.getElementById("searchInput");
+const API_URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd";
 
+const tableBody = document.getElementById("tableBody");
+const searchInput = document.getElementById("searchInput");
+const refreshBtn = document.getElementById("refreshBtn");
 let cryptoData = [];
 
-async function fetchData() {
-  spinner.style.display = "block";
-  table.style.display = "none";
-  try {
-    const response = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1");
-    const data = await response.json();
-    cryptoData = data;
-    displayData(data);
-  } catch (error) {
-    alert("Failed to fetch data.");
-    console.error(error);
-  } finally {
-    spinner.style.display = "none";
-    table.style.display = "table";
-  }
-}
-
-function displayData(data) {
+function renderTable(data) {
   tableBody.innerHTML = "";
-  data.forEach((coin, index) => {
+  data.forEach(coin => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${coin.market_cap_rank}</td>
       <td>${coin.name}</td>
       <td>${coin.symbol.toUpperCase()}</td>
       <td>$${coin.current_price.toLocaleString()}</td>
       <td>$${coin.market_cap.toLocaleString()}</td>
+      <td style="color:${coin.price_change_percentage_24h >= 0 ? 'lime' : 'red'};">
+        ${coin.price_change_percentage_24h.toFixed(2)}%
+      </td>
     `;
     tableBody.appendChild(row);
   });
 }
 
-function sortByPrice() {
-  const sorted = [...cryptoData].sort((a, b) => b.current_price - a.current_price);
-  displayData(sorted);
-}
-
-function sortByMarketCap() {
-  const sorted = [...cryptoData].sort((a, b) => b.market_cap - a.market_cap);
-  displayData(sorted);
-}
-
-function refreshData() {
-  fetchData();
+async function fetchData() {
+  tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;"><div class="spinner"></div></td></tr>`;
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    cryptoData = data;
+    renderTable(cryptoData);
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Failed to load data. Please try again.</td></tr>`;
+  }
 }
 
 searchInput.addEventListener("input", () => {
-  const query = searchInput.value.toLowerCase();
-  const filtered = cryptoData.filter(coin => 
-    coin.name.toLowerCase().includes(query) || 
-    coin.symbol.toLowerCase().includes(query)
+  const term = searchInput.value.toLowerCase();
+  const filtered = cryptoData.filter(coin =>
+    coin.name.toLowerCase().includes(term) || coin.symbol.toLowerCase().includes(term)
   );
-  displayData(filtered);
+  renderTable(filtered);
 });
 
-// Initial load
+refreshBtn.addEventListener("click", fetchData);
+
+document.querySelectorAll("th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    cryptoData.sort((a, b) => {
+      if (typeof a[key] === "string") {
+        return a[key].localeCompare(b[key]);
+      }
+      return b[key] - a[key];
+    });
+    renderTable(cryptoData);
+  });
+});
+
 fetchData();
 
