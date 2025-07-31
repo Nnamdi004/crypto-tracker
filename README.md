@@ -60,7 +60,7 @@ Endpoint Used: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd
 
 Clone the repo: 
 
-git clone https://github.com/your-username/crypto-tracker.git
+git clone https://github.com/nnamdi004/crypto-tracker.git
 
 cd crypto-tracker
 
