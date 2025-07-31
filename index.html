@@ -3,45 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crypto Dashboard</title>
+  <title>Crypto Tracker</title>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="logo.png" type="image/png" />
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Crypto Logo" class="logo" />
-    <h1>Crypto Dashboard</h1>
-    <input type="text" id="searchInput" placeholder="Search for a coin..." />
+    <h1>Crypto Market Tracker</h1>
+    <input type="text" id="searchInput" placeholder="Search for a cryptocurrency..." />
+    <button id="refreshBtn">Refresh Data</button>
   </header>
 
-  <div class="table-controls">
-    <button onclick="sortByPrice()">Sort by Price</button>
-    <button onclick="sortByMarketCap()">Sort by Market Cap</button>
-    <button onclick="refreshData()">Refresh</button>
-  </div>
-
-  <section class="crypto-table">
-    <div id="spinner" class="spinner"></div>
-    <table id="cryptoTable" style="display: none;">
+  <main class="crypto-table">
+    <table>
       <thead>
         <tr>
-          <th>Rank</th>
-          <th>Name</th>
-          <th>Symbol</th>
-          <th>Price (USD)</th>
-          <th>Market Cap</th>
+          <th data-sort="name">Name 🔽</th>
+          <th data-sort="symbol">Symbol</th>
+          <th data-sort="price">Price</th>
+          <th data-sort="market_cap">Market Cap</th>
+          <th>24h Change</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <!-- Data will be populated here -->
+        <tr><td colspan="5" style="text-align:center;"><div class="spinner"></div></td></tr>
       </tbody>
     </table>
-  </section>
+  </main>
 
   <footer>
-    Powered by <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
+    <p>&copy; 2025 Crypto Tracker | Data from <a href="https://www.coingecko.com/api/documentations/v3" target="_blank">CoinGecko API</a></p>
   </footer>
 
   <script src="script.js"></script>
 </body>
 </html>
+
