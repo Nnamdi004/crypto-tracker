@@ -117,6 +117,25 @@ crypto-tracker/
 
 🧼 Clean, commented, and readable JS/CSS
 
+
+📈 Challenges and Solutions
+
+Challenge	Solution
+
+API rate limits	Cached on load, minimal refresh
+
+Cross-browser rendering	Used standard HTML/CSS with no frameworks
+
+Data rendering	Dynamically generated table via JS DOM manipulation
+
+Responsiveness	Flex-based layout and media queries
+
+
+🙏 Acknowledgements
+
+🦎 CoinGecko — Crypto data API
+
+
 📃 License
 
 This project is licensed under the MIT License.
