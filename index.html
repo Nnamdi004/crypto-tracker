@@ -1,51 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crypto Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Real-time Exchange Rates</title>
+    <meta name="description" content="Convert currencies with real-time exchange rates. Support for 30+ major world currencies.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💱</text></svg>">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>Crypto Price Tracker</h1>
-    <input type="text" id="searchInput" placeholder="Search cryptocurrency..." />
-  </header>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <span class="sun-icon">☀️</span>
+        <span class="moon-icon">🌙</span>
+    </button>
 
-  <section class="table-controls">
-    <button onclick="sortTable('price')">Sort by Price</button>
-    <button onclick="sortTable('marketCap')">Sort by Market Cap</button>
-    <button onclick="toggleTheme()">Toggle Theme</button>
-  </section>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>💱 Currency Converter</h1>
+            <p>Real-time exchange rates • Free & Fast</p>
+        </header>
 
-  <main class="crypto-table">
-    <div id="loading">Loading data...</div>
-    <table id="cryptoTable" style="display: none;">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Symbol</th>
-          <th>Price (USD)</th>
-          <th>Market Cap</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </main>
+        <!-- Main Converter Card -->
+        <main class="converter-card">
+            <!-- Error Display -->
+            <div class="alert error" id="errorAlert" role="alert"></div>
+            <div class="alert success" id="successAlert" role="alert"></div>
 
-  <section class="converter">
-    <h2>Currency Converter</h2>
-    <input type="number" id="amount" placeholder="Amount" />
-    <select id="fromCurrency"></select>
-    <select id="toCurrency"></select>
-    <button onclick="convertCurrency()">Convert</button>
-    <div id="conversionResult"></div>
-  </section>
+            <!-- Quick Amount Buttons -->
+            <div class="quick-amounts">
+                <button class="quick-btn" data-amount="1">1</button>
+                <button class="quick-btn" data-amount="10">10</button>
+                <button class="quick-btn" data-amount="100">100</button>
+                <button class="quick-btn" data-amount="1000">1K</button>
+                <button class="quick-btn" data-amount="10000">10K</button>
+            </div>
 
-  <footer>
-    Built with ❤️ using CoinGecko API. Live updates every 30 seconds.
-  </footer>
+            <!-- Converter Form -->
+            <div class="converter-form">
+                <div class="input-section">
+                    <label for="amount">Amount</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="amount" placeholder="0.00" value="100" min="0" step="0.01">
+                        <button class="clear-btn" id="clearAmount" title="Clear amount">×</button>
+                    </div>
+                </div>
 
-  <script src="script.js"></script>
+                <div class="currency-section">
+                    <div class="currency-input">
+                        <label for="fromCurrency">From</label>
+                        <div class="select-wrapper">
+                            <select id="fromCurrency">
+                                <option value="USD">🇺🇸 USD - US Dollar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="swap-btn" id="swapBtn" title="Swap currencies">
+                        <div class="swap-icon">⇄</div>
+                    </button>
+
+                    <div class="currency-input">
+                        <label for="toCurrency">To</label>
+                        <div class="select-wrapper">
+                            <select id="toCurrency">
+                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Display -->
+            <div class="result-section" id="resultSection">
+                <div class="result-main">
+                    <div class="converted-amount" id="convertedAmount">0.00 EUR</div>
+                    <div class="exchange-rate" id="exchangeRate">1 USD = 0.85 EUR</div>
+                </div>
+                
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="label">Mid-market rate</span>
+                        <span class="value" id="midRate">0.8500</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Last updated</span>
+                        <span class="value" id="lastUpdated">Just now</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorite Pairs -->
+            <div class="favorites-section">
+                <h3>⭐ Favorite Pairs</h3>
+                <div class="favorite-pairs" id="favoritePairs">
+                    <div class="pair-card" data-from="USD" data-to="EUR">
+                        <div class="pair-currencies">USD → EUR</div>
+                        <div class="pair-rate">0.8500</div>
+                    </div>
+                    <div class="pair-card" data-from="GBP" data-to="USD">
+                        <div class="pair-currencies">GBP → USD</div>
+                        <div class="pair-rate">1.2650</div>
+                    </div>
+                    <div class="pair-card" data-from="USD" data-to="JPY">
+                        <div class="pair-currencies">USD → JPY</div>
+                        <div class="pair-rate">150.25</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Exchange Rates Table -->
+        <section class="rates-section">
+            <div class="rates-header">
+                <h2>📊 Live Exchange Rates</h2>
+                <div class="header-controls">
+                    <div class="search-wrapper">
+                        <input type="text" id="searchCurrency" placeholder="Search currencies..." class="search-input">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="baseCurrency" class="base-select">
+                        <option value="USD">Base: USD</option>
+                        <option value="EUR">Base: EUR</option>
+                        <option value="GBP">Base: GBP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="rates-grid" id="ratesGrid">
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p>Loading exchange rates...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>Powered by <a href="https://exchangerate-api.com/" target="_blank">ExchangeRate-API</a></p>
+                <p>Made with ❤️ for real-time currency conversion</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="refreshRates" title="Refresh rates">
+        <span class="fab-icon">🔄</span>
+    </button>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
 </body>
 </html>

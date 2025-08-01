@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  currency-converter:
+    build: .
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - NODE_ENV=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.currency-converter.rule=Host(`localhost`)"
+      - "traefik.http.services.currency-converter.loadbalancer.server.port=8080"
+
+  # Optional: Add a reverse proxy for local development
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - currency-converter
+    restart: unless-stopped
+
+networks:
+  default:
+    name: currency-converter-network
