@@ -3,152 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Converter - Real-time Exchange Rates</title>
-    <meta name="description" content="Convert currencies with real-time exchange rates. Support for 30+ major world currencies.">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💱</text></svg>">
+    <title>Currency Converter Pro | Real-time Exchange Rates</title>
+    <meta name="description" content="Professional currency converter with real-time exchange rates, historical charts, and multi-currency support.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💱</text></svg>">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
 </head>
 <body>
-    <!-- Theme Toggle -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-        <span class="sun-icon">☀️</span>
-        <span class="moon-icon">🌙</span>
-    </button>
-
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>💱 Currency Converter</h1>
-            <p>Real-time exchange rates • Free & Fast</p>
-        </header>
-
-        <!-- Main Converter Card -->
-        <main class="converter-card">
-            <!-- Error Display -->
-            <div class="alert error" id="errorAlert" role="alert"></div>
-            <div class="alert success" id="successAlert" role="alert"></div>
-
-            <!-- Quick Amount Buttons -->
-            <div class="quick-amounts">
-                <button class="quick-btn" data-amount="1">1</button>
-                <button class="quick-btn" data-amount="10">10</button>
-                <button class="quick-btn" data-amount="100">100</button>
-                <button class="quick-btn" data-amount="1000">1K</button>
-                <button class="quick-btn" data-amount="10000">10K</button>
+    <!-- Loading Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo">💱</div>
+            <h1>Currency Converter Pro</h1>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
             </div>
+        </div>
+    </div>
 
-            <!-- Converter Form -->
-            <div class="converter-form">
-                <div class="input-section">
-                    <label for="amount">Amount</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="amount" placeholder="0.00" value="100" min="0" step="0.01">
-                        <button class="clear-btn" id="clearAmount" title="Clear amount">×</button>
-                    </div>
+    <!-- Main Application -->
+    <div class="app-container" id="appContainer">
+        <!-- Navigation Header -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>CurrencyPro</span>
                 </div>
-
-                <div class="currency-section">
-                    <div class="currency-input">
-                        <label for="fromCurrency">From</label>
-                        <div class="select-wrapper">
-                            <select id="fromCurrency">
-                                <option value="USD">🇺🇸 USD - US Dollar</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button class="swap-btn" id="swapBtn" title="Swap currencies">
-                        <div class="swap-icon">⇄</div>
+                <div class="nav-menu">
+                    <button class="nav-item active" data-view="converter">
+                        <i class="fas fa-calculator"></i>
+                        <span>Converter</span>
                     </button>
+                    <button class="nav-item" data-view="rates">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Rates</span>
+                    </button>
+                    <button class="nav-item" data-view="history">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="notifications-toggle" id="notificationsToggle" title="Toggle notifications">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
 
-                    <div class="currency-input">
-                        <label for="toCurrency">To</label>
-                        <div class="select-wrapper">
-                            <select id="toCurrency">
-                                <option value="EUR">🇪🇺 EUR - Euro</option>
-                            </select>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Converter View -->
+            <section class="view active" id="converterView">
+                <div class="container">
+                    <!-- Hero Section -->
+                    <div class="hero-section">
+                        <h1 class="hero-title">
+                            <span class="gradient-text">Real-time Currency Converter</span>
+                        </h1>
+                        <p class="hero-subtitle">Convert currencies with live exchange rates updated every minute</p>
+                        <div class="hero-stats">
+                            <div class="stat-item">
+                                <span class="stat-number" id="supportedCurrencies">150+</span>
+                                <span class="stat-label">Currencies</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">99.9%</span>
+                                <span class="stat-label">Uptime</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number" id="lastUpdate">Live</span>
+                                <span class="stat-label">Updates</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Converter -->
+                    <div class="converter-section">
+                        <div class="converter-card glass-card">
+                            <div class="card-header">
+                                <h2><i class="fas fa-exchange-alt"></i> Currency Converter</h2>
+                                <div class="converter-actions">
+                                    <button class="action-btn" id="favoriteBtn" title="Add to favorites">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <button class="action-btn" id="shareBtn" title="Share conversion">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="conversion-form">
+                                <div class="amount-section">
+                                    <label for="amount" class="form-label">Amount</label>
+                                    <div class="amount-input-wrapper">
+                                        <input type="number" id="amount" class="amount-input" 
+                                               placeholder="Enter amount" value="1" min="0" step="0.01">
+                                        <div class="amount-suggestions">
+                                            <button class="amount-btn" data-amount="100">100</button>
+                                            <button class="amount-btn" data-amount="500">500</button>
+                                            <button class="amount-btn" data-amount="1000">1K</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="currency-conversion">
+                                    <div class="currency-section">
+                                        <label for="fromCurrency" class="form-label">From</label>
+                                        <div class="currency-selector">
+                                            <select id="fromCurrency" class="currency-select">
+                                                <option value="USD">🇺🇸 USD - US Dollar</option>
+                                            </select>
+                                            <div class="currency-flag" id="fromFlag">🇺🇸</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="swap-section">
+                                        <button class="swap-btn" id="swapBtn" title="Swap currencies">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="currency-section">
+                                        <label for="toCurrency" class="form-label">To</label>
+                                        <div class="currency-selector">
+                                            <select id="toCurrency" class="currency-select">
+                                                <option value="EUR">🇪🇺 EUR - Euro</option>
+                                            </select>
+                                            <div class="currency-flag" id="toFlag">🇪🇺</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="convert-btn" id="convertBtn">
+                                    <i class="fas fa-calculator"></i>
+                                    <span>Convert Currency</span>
+                                </button>
+                            </div>
+
+                            <!-- Results Section -->
+                            <div class="result-section" id="resultSection">
+                                <div class="result-card">
+                                    <div class="result-header">
+                                        <h3>Conversion Result</h3>
+                                        <div class="result-timestamp" id="resultTimestamp"></div>
+                                    </div>
+                                    <div class="result-display">
+                                        <div class="result-amount" id="resultAmount"></div>
+                                        <div class="result-rate" id="resultRate"></div>
+                                    </div>
+                                    <div class="result-actions">
+                                        <button class="result-action-btn" id="copyResultBtn">
+                                            <i class="fas fa-copy"></i> Copy
+                                        </button>
+                                        <button class="result-action-btn" id="saveResultBtn">
+                                            <i class="fas fa-save"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Convert Cards -->
+                        <div class="quick-convert-section">
+                            <h3>Popular Conversions</h3>
+                            <div class="quick-convert-grid" id="quickConvertGrid">
+                                <!-- Populated by JavaScript -->
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- Result Display -->
-            <div class="result-section" id="resultSection">
-                <div class="result-main">
-                    <div class="converted-amount" id="convertedAmount">0.00 EUR</div>
-                    <div class="exchange-rate" id="exchangeRate">1 USD = 0.85 EUR</div>
-                </div>
-                
-                <div class="result-details">
-                    <div class="detail-item">
-                        <span class="label">Mid-market rate</span>
-                        <span class="value" id="midRate">0.8500</span>
+            <!-- Rates View -->
+            <section class="view" id="ratesView">
+                <div class="container">
+                    <div class="rates-header">
+                        <h2><i class="fas fa-chart-line"></i> Exchange Rates</h2>
+                        <div class="rates-controls">
+                            <div class="search-wrapper">
+                                <input type="text" id="ratesSearch" class="search-input" placeholder="Search currencies...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <select id="baseCurrencySelect" class="base-currency-select">
+                                <option value="USD">Base: USD</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="detail-item">
-                        <span class="label">Last updated</span>
-                        <span class="value" id="lastUpdated">Just now</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Favorite Pairs -->
-            <div class="favorites-section">
-                <h3>⭐ Favorite Pairs</h3>
-                <div class="favorite-pairs" id="favoritePairs">
-                    <div class="pair-card" data-from="USD" data-to="EUR">
-                        <div class="pair-currencies">USD → EUR</div>
-                        <div class="pair-rate">0.8500</div>
-                    </div>
-                    <div class="pair-card" data-from="GBP" data-to="USD">
-                        <div class="pair-currencies">GBP → USD</div>
-                        <div class="pair-rate">1.2650</div>
-                    </div>
-                    <div class="pair-card" data-from="USD" data-to="JPY">
-                        <div class="pair-currencies">USD → JPY</div>
-                        <div class="pair-rate">150.25</div>
+                    <div class="rates-grid" id="ratesGrid">
+                        <div class="loading-rates">
+                            <div class="spinner"></div>
+                            <p>Loading exchange rates...</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- History View -->
+            <section class="view" id="historyView">
+                <div class="container">
+                    <div class="history-header">
+                        <h2><i class="fas fa-history"></i> Conversion History</h2>
+                        <div class="history-controls">
+                            <button class="btn btn-secondary" id="clearHistoryBtn">
+                                <i class="fas fa-trash"></i> Clear History
+                            </button>
+                            <button class="btn btn-primary" id="exportHistoryBtn">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-content" id="historyContent">
+                        <div class="empty-state">
+                            <i class="fas fa-history"></i>
+                            <h3>No conversion history yet</h3>
+                            <p>Your currency conversions will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
-
-        <!-- Exchange Rates Table -->
-        <section class="rates-section">
-            <div class="rates-header">
-                <h2>📊 Live Exchange Rates</h2>
-                <div class="header-controls">
-                    <div class="search-wrapper">
-                        <input type="text" id="searchCurrency" placeholder="Search currencies..." class="search-input">
-                        <span class="search-icon">🔍</span>
-                    </div>
-                    <select id="baseCurrency" class="base-select">
-                        <option value="USD">Base: USD</option>
-                        <option value="EUR">Base: EUR</option>
-                        <option value="GBP">Base: GBP</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="rates-grid" id="ratesGrid">
-                <div class="loading-spinner" id="loadingSpinner">
-                    <div class="spinner"></div>
-                    <p>Loading exchange rates...</p>
-                </div>
-            </div>
-        </section>
 
         <!-- Footer -->
         <footer class="footer">
-            <div class="footer-content">
-                <p>Powered by <a href="https://exchangerate-api.com/" target="_blank">ExchangeRate-API</a></p>
-                <p>Made with ❤️ for real-time currency conversion</p>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <div class="footer-brand">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>CurrencyPro</span>
+                        </div>
+                        <p>Professional currency converter with real-time exchange rates</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Data Sources</h4>
+                        <p>Powered by <a href="https://exchangerate-api.com/" target="_blank">ExchangeRate-API</a></p>
+                        <p>Updated every minute</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Features</h4>
+                        <ul>
+                            <li>150+ currencies</li>
+                            <li>Real-time rates</li>
+                            <li>Conversion history</li>
+                            <li>Offline support</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 CurrencyPro. Built with HTML, CSS & JavaScript</p>
+                    <div class="footer-links">
+                        <a href="#" onclick="showModal('privacy')">Privacy</a>
+                        <a href="#" onclick="showModal('terms')">Terms</a>
+                        <a href="#" onclick="showModal('about')">About</a>
+                    </div>
+                </div>
             </div>
         </footer>
     </div>
 
-    <!-- Floating Action Button -->
-    <button class="fab" id="refreshRates" title="Refresh rates">
-        <span class="fab-icon">🔄</span>
-    </button>
+    <!-- Notifications -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    <div class="error-toast" id="errorToast">
+        <div class="error-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorMessage"></span>
+        </div>
+        <button class="error-close" onclick="hideError()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
 
     <!-- Scripts -->
     <script src="script.js"></script>
