@@ -1,3 +1,10 @@
+/**
+ * Currency Converter Pro - Advanced Web Application
+ * Features: Real-time conversion, history tracking, dark mode, notifications
+ * Author: Professional Web Development
+ * Version: 2.0.0
+ */
+
 class CurrencyConverterPro {
     constructor() {
         // Configuration
@@ -45,7 +52,12 @@ class CurrencyConverterPro {
             'SEK': { name: 'Swedish Krona', flag: '🇸🇪', symbol: 'kr' },
             'NOK': { name: 'Norwegian Krone', flag: '🇳🇴', symbol: 'kr' },
             'TRY': { name: 'Turkish Lira', flag: '🇹🇷', symbol: '₺' },
-            'PLN },
+            'PLN': { name: 'Polish Zloty', flag: '🇵🇱', symbol: 'zł' },
+            'DKK': { name: 'Danish Krone', flag: '🇩🇰', symbol: 'kr' },
+            'CZK': { name: 'Czech Koruna', flag: '🇨🇿', symbol: 'Kč' },
+            'HUF': { name: 'Hungarian Forint', flag: '🇭🇺', symbol: 'Ft' },
+            'ILS': { name: 'Israeli Shekel', flag: '🇮🇱', symbol: '₪' },
+            'CLP': { name: 'Chilean Peso', flag: '🇨🇱', symbol: '$' },
             'PHP': { name: 'Philippine Peso', flag: '🇵🇭', symbol: '₱' },
             'AED': { name: 'UAE Dirham', flag: '🇦🇪', symbol: 'د.إ' },
             'SAR': { name: 'Saudi Riyal', flag: '🇸🇦', symbol: '﷼' },
@@ -55,6 +67,9 @@ class CurrencyConverterPro {
             'MYR': { name: 'Malaysian Ringgit', flag: '🇲🇾', symbol: 'RM' },
             'IDR': { name: 'Indonesian Rupiah', flag: '🇮🇩', symbol: 'Rp' }
         };
+
+        // Debounce timer for auto-convert
+        this.debounceTimer = null;
 
         // Initialize application
         this.init();
@@ -114,17 +129,16 @@ class CurrencyConverterPro {
     }
 
     /**
-     * Load user preferences from localStorage
+     * Load user preferences (using in-memory storage)
      */
     loadUserPreferences() {
         try {
-            const preferences = JSON.parse(localStorage.getItem('currencyConverterPro') || '{}');
-            
-            this.state.theme = preferences.theme || 'light';
-            this.state.notifications = preferences.notifications !== false;
-            this.state.favorites = preferences.favorites || [];
-            this.state.history = preferences.history || [];
-            this.state.baseCurrency = preferences.baseCurrency || 'USD';
+            // Initialize with default values since localStorage is not available
+            this.state.theme = 'light';
+            this.state.notifications = true;
+            this.state.favorites = [];
+            this.state.history = [];
+            this.state.baseCurrency = 'USD';
             
             // Apply theme
             document.documentElement.setAttribute('data-theme', this.state.theme);
@@ -133,7 +147,9 @@ class CurrencyConverterPro {
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 const icon = themeToggle.querySelector('i');
-                icon.className = this.state.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                if (icon) {
+                    icon.className = this.state.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                }
             }
         } catch (error) {
             console.error('Error loading preferences:', error);
@@ -141,22 +157,17 @@ class CurrencyConverterPro {
     }
 
     /**
-     * Save user preferences to localStorage
+     * Save user preferences (in-memory only)
      */
     saveUserPreferences() {
-        try {
-            const preferences = {
-                theme: this.state.theme,
-                notifications: this.state.notifications,
-                favorites: this.state.favorites,
-                history: this.state.history.slice(0, this.config.maxHistoryItems),
-                baseCurrency: this.state.baseCurrency
-            };
-            
-            localStorage.setItem('currencyConverterPro', JSON.stringify(preferences));
-        } catch (error) {
-            console.error('Error saving preferences:', error);
-        }
+        // Since localStorage is not available, preferences are stored in memory only
+        // They will be lost on page refresh, which is expected behavior in this environment
+        console.log('Preferences saved to memory:', {
+            theme: this.state.theme,
+            notifications: this.state.notifications,
+            favorites: this.state.favorites,
+            baseCurrency: this.state.baseCurrency
+        });
     }
 
     /**
@@ -165,7 +176,7 @@ class CurrencyConverterPro {
     setupEventListeners() {
         // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => this.switchView(e.target.dataset.view));
+            item.addEventListener('click', (e) => this.switchView(e.target.closest('.nav-item').dataset.view));
         });
 
         // Theme toggle
@@ -876,10 +887,537 @@ class CurrencyConverterPro {
         } else {
             this.state.favorites.push(pair);
             icon.className = 'fas fa-heart';
-            this.showNotification('Added to favorites', /**
- * Currency Converter Pro - Advanced Web Application
- * Features: Real-time conversion, history tracking, dark mode, notifications
- * Author: Professional Web Development
- * Version: 2.0.0
- */
+            this.showNotification('Added to favorites', 'success');
+        }
 
+        this.saveUserPreferences();
+    }
+
+    /**
+     * Share conversion result
+     */
+    async shareConversion() {
+        const amount = document.getElementById('amount').value;
+        const fromCurrency = document.getElementById('fromCurrency').value;
+        const toCurrency = document.getElementById('toCurrency').value;
+
+        if (!amount || !fromCurrency || !toCurrency) {
+            this.showError('Please complete a conversion first');
+            return;
+        }
+
+        const rate = this.calculateExchangeRate(fromCurrency, toCurrency);
+        const convertedAmount = amount * rate;
+        const shareText = `${amount} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency} (Rate: ${rate.toFixed(6)})`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Currency Conversion',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    this.copyToClipboard(shareText);
+                }
+            }
+        } else {
+            this.copyToClipboard(shareText);
+        }
+    }
+
+    /**
+     * Filter exchange rates based on search
+     */
+    filterRates(searchTerm) {
+        const rateCards = document.querySelectorAll('.rate-card');
+        const term = searchTerm.toLowerCase();
+
+        rateCards.forEach(card => {
+            const currency = card.dataset.currency;
+            const name = card.dataset.name;
+            
+            if (currency.includes(term) || name.includes(term)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    /**
+     * Change base currency for rates display
+     */
+    async changeBaseCurrency(newBaseCurrency) {
+        if (newBaseCurrency === this.state.baseCurrency) return;
+
+        this.state.baseCurrency = newBaseCurrency;
+        this.saveUserPreferences();
+
+        try {
+            await this.loadExchangeRates();
+            this.displayExchangeRates();
+            this.showNotification(`Base currency changed to ${newBaseCurrency}`, 'info');
+        } catch (error) {
+            this.showError('Failed to update exchange rates');
+        }
+    }
+
+    /**
+     * Handle keyboard shortcuts
+     */
+    handleKeyboardShortcuts(event) {
+        // Ctrl/Cmd + specific keys
+        if (event.ctrlKey || event.metaKey) {
+            switch (event.key) {
+                case '1':
+                    event.preventDefault();
+                    this.switchView('converter');
+                    break;
+                case '2':
+                    event.preventDefault();
+                    this.switchView('rates');
+                    break;
+                case '3':
+                    event.preventDefault();
+                    this.switchView('history');
+                    break;
+                case 'd':
+                    event.preventDefault();
+                    this.toggleTheme();
+                    break;
+                case 's':
+                    event.preventDefault();
+                    this.swapCurrencies();
+                    break;
+            }
+        }
+
+        // Escape key to close modals
+        if (event.key === 'Escape') {
+            this.closeModal();
+            this.hideError();
+        }
+    }
+
+    /**
+     * Start auto-update interval
+     */
+    startAutoUpdate() {
+        setInterval(async () => {
+            if (navigator.onLine) {
+                try {
+                    await this.loadExchangeRates();
+                    if (this.state.currentView === 'rates') {
+                        this.displayExchangeRates();
+                    }
+                } catch (error) {
+                    console.error('Auto-update failed:', error);
+                }
+            }
+        }, this.config.updateInterval);
+    }
+
+    /**
+     * Handle online event
+     */
+    handleOnline() {
+        this.showNotification('Connection restored', 'success');
+        this.loadExchangeRates();
+    }
+
+    /**
+     * Handle offline event
+     */
+    handleOffline() {
+        this.showNotification('Working offline with cached rates', 'warning');
+    }
+
+    /**
+     * Set loading state
+     */
+    setLoadingState(isLoading, message = 'Loading...') {
+        const convertBtn = document.getElementById('convertBtn');
+        
+        if (isLoading) {
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>${message}</span>`;
+        } else {
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = `<i class="fas fa-calculator"></i> <span>Convert Currency</span>`;
+        }
+
+        this.state.isLoading = isLoading;
+    }
+
+    /**
+     * Show notification
+     */
+    showNotification(message, type = 'info', duration = 4000) {
+        if (!this.state.notifications) return;
+
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-header">
+                <div class="notification-title">${this.getNotificationTitle(type)}</div>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notification-body">${message}</div>
+        `;
+
+        container.appendChild(notification);
+
+        // Auto remove after duration
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, duration);
+    }
+
+    /**
+     * Get notification title based on type
+     */
+    getNotificationTitle(type) {
+        const titles = {
+            success: 'Success',
+            error: 'Error',
+            warning: 'Warning',
+            info: 'Information'
+        };
+        return titles[type] || 'Notification';
+    }
+
+    /**
+     * Show error message
+     */
+    showError(message) {
+        const errorToast = document.getElementById('errorToast');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        if (errorToast && errorMessage) {
+            errorMessage.textContent = message;
+            errorToast.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                this.hideError();
+            }, 5000);
+        }
+    }
+
+    /**
+     * Hide error message
+     */
+    hideError() {
+        const errorToast = document.getElementById('errorToast');
+        if (errorToast) {
+            errorToast.classList.remove('show');
+        }
+    }
+
+    /**
+     * Show modal
+     */
+    showModal(type) {
+        const modal = document.getElementById('modal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        if (!modal || !modalOverlay || !modalTitle || !modalBody) return;
+
+        const content = this.getModalContent(type);
+        modalTitle.textContent = content.title;
+        modalBody.innerHTML = content.body;
+
+        modalOverlay.classList.add('show');
+    }
+
+    /**
+     * Close modal
+     */
+    closeModal() {
+        const modalOverlay = document.getElementById('modalOverlay');
+        if (modalOverlay) {
+            modalOverlay.classList.remove('show');
+        }
+    }
+
+    /**
+     * Get modal content based on type
+     */
+    getModalContent(type) {
+        const content = {
+            about: {
+                title: 'About Currency Converter Pro',
+                body: `
+                    <h4>Professional Currency Converter</h4>
+                    <p>A modern, feature-rich currency converter built with vanilla JavaScript, HTML5, and CSS3.</p>
+                    
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Real-time exchange rates from multiple APIs</li>
+                        <li>150+ supported currencies</li>
+                        <li>Conversion history tracking</li>
+                        <li>Dark/Light theme support</li>
+                        <li>Responsive design for all devices</li>
+                        <li>Offline support with cached rates</li>
+                        <li>Keyboard shortcuts</li>
+                        <li>Progressive Web App (PWA) support</li>
+                    </ul>
+                    
+                    <h4>Version</h4>
+                    <p>v2.0.0 - Professional Edition</p>
+                `
+            },
+            privacy: {
+                title: 'Privacy Policy',
+                body: `
+                    <h4>Data Collection</h4>
+                    <p>This application stores data locally on your device only. We do not collect or transmit personal information to external servers.</p>
+                    
+                    <h4>Local Storage</h4>
+                    <ul>
+                        <li>User preferences (theme, notifications)</li>
+                        <li>Conversion history</li>
+                        <li>Favorite currency pairs</li>
+                    </ul>
+                    
+                    <h4>External APIs</h4>
+                    <p>Exchange rate data is fetched from ExchangeRate-API. Please refer to their privacy policy for data handling practices.</p>
+                    
+                    <h4>Cookies</h4>
+                    <p>This application does not use cookies for tracking purposes.</p>
+                `
+            },
+            terms: {
+                title: 'Terms of Service',
+                body: `
+                    <h4>Use of Service</h4>
+                    <p>This currency converter is provided for informational purposes only. Exchange rates are updated regularly but may not reflect real-time market conditions.</p>
+                    
+                    <h4>Accuracy</h4>
+                    <p>While we strive for accuracy, we cannot guarantee the precision of exchange rates. Always verify rates with official financial institutions for important transactions.</p>
+                    
+                    <h4>Liability</h4>
+                    <p>Users assume all risks associated with currency conversions. We are not liable for any financial losses resulting from the use of this application.</p>
+                    
+                    <h4>Updates</h4>
+                    <p>Terms may be updated periodically. Continued use constitutes acceptance of updated terms.</p>
+                `
+            }
+        };
+
+        return content[type] || { title: 'Information', body: 'Content not available.' };
+    }
+
+    /**
+     * Update last update display
+     */
+    updateLastUpdateDisplay() {
+        const lastUpdate = document.getElementById('lastUpdate');
+        if (lastUpdate && this.state.lastUpdate) {
+            lastUpdate.textContent = this.formatTime(this.state.lastUpdate);
+        }
+    }
+
+    /**
+     * Update supported currencies count
+     */
+    updateSupportedCurrenciesCount() {
+        const supportedCurrencies = document.getElementById('supportedCurrencies');
+        if (supportedCurrencies) {
+            supportedCurrencies.textContent = `${Object.keys(this.state.currencies).length}+`;
+        }
+    }
+
+    /**
+     * Calculate rate change (mock implementation)
+     */
+    calculateRateChange(currency) {
+        // Mock rate change calculation
+        // In a real application, this would compare with historical data
+        return (Math.random() - 0.5) * 0.02; // Random change between -1% and +1%
+    }
+
+    /**
+     * Format rate value
+     */
+    formatRate(rate) {
+        if (rate >= 1000) {
+            return rate.toLocaleString('en-US', { maximumFractionDigits: 2 });
+        } else if (rate >= 1) {
+            return rate.toFixed(4);
+        } else {
+            return rate.toFixed(6);
+        }
+    }
+
+    /**
+     * Format time display
+     */
+    formatTime(date) {
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    }
+
+    /**
+     * Format date and time display
+     */
+    formatDateTime(date) {
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    /**
+     * Copy text to clipboard
+     */
+    async copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            this.showNotification('Copied to clipboard', 'success');
+        } catch (error) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            this.showNotification('Copied to clipboard', 'success');
+        }
+    }
+
+    /**
+     * Debounce function for performance optimization
+     */
+    debounce(func, wait) {
+        return (...args) => {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    /**
+     * Delay function for async operations
+     */
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+// Global functions for HTML onclick handlers
+window.showModal = function(type) {
+    if (window.app) {
+        window.app.showModal(type);
+    }
+};
+
+window.closeModal = function() {
+    if (window.app) {
+        window.app.closeModal();
+    }
+};
+
+window.hideError = function() {
+    if (window.app) {
+        window.app.hideError();
+    }
+};
+
+// Initialize application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new CurrencyConverterPro();
+});
+
+// Service Worker registration for PWA functionality
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('ServiceWorker registration successful:', registration.scope);
+        } catch (error) {
+            console.log('ServiceWorker registration failed:', error);
+        }
+    });
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    
+    // Show install button or notification
+    if (window.app && window.app.state.notifications) {
+        window.app.showNotification('Install this app for a better experience!', 'info', 8000);
+    }
+});
+
+// Handle app installation
+window.addEventListener('appinstalled', () => {
+    console.log('PWA was installed');
+    if (window.app) {
+        window.app.showNotification('App installed successfully!', 'success');
+    }
+});
+
+// Handle visibility change for performance optimization
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Page is hidden, reduce background activity
+        console.log('App is hidden');
+    } else {
+        // Page is visible, resume normal activity
+        console.log('App is visible');
+        if (window.app && navigator.onLine) {
+            // Optionally refresh data when app becomes visible
+            window.app.loadExchangeRates().catch(console.error);
+        }
+    }
+});
+
+// Handle page unload
+window.addEventListener('beforeunload', () => {
+    if (window.app) {
+        window.app.saveUserPreferences();
+    }
+});
+
+// Error handling for unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    if (window.app) {
+        window.app.showError('An unexpected error occurred. Please try again.');
+    }
+    event.preventDefault();
+});
+
+// Global error handler
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    if (window.app) {
+        window.app.showError('An error occurred. Please refresh the page if problems persist.');
+    }
+});
+
+// Export for module usage (if needed)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CurrencyConverterPro;
+}
